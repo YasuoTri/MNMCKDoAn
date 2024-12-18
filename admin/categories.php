@@ -1,18 +1,30 @@
-<?php require_once "../admin/header.php"?>
+<?php require_once "../admin/header.php";
+        require_once "../config/database.php";
+?>
 
 <?php
+   
+
+    
     if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         // Add items
         if (isset($_POST['action']) && $_POST['action'] == 'add') {
             $name = isset($_POST['name']) ? $_POST['name'] : '';
 
             if (!empty($name)) {
-                $sql = "INSERT INTO categories VALUES (null, '$name')";
-                if (Database::NonQuery($sql)) {
+                if (Database::IsDuplicateNameCategories($name)) {
                     $message = [
-                        'type' => 'success',
-                        'text' => 'Thêm thành công',
+                        'type' => 'warning',
+                        'text' => 'Tên thể loại đã tồn tại',
                     ];
+                } else {
+                    $sql = "INSERT INTO categories VALUES (null, '$name')";
+                    if (Database::NonQuery($sql)) {
+                        $message = [
+                            'type' => 'success',
+                            'text' => 'Thêm thành công',
+                        ];
+                    }
                 }
             } else {
                 $message = [
@@ -20,7 +32,8 @@
                     'text' => 'Tên thể loại không được trống',
                 ];
             }
-        }
+
+            }
 
         // Edit items
         if (isset($_POST['action']) && $_POST['action'] == 'edit') {
@@ -28,13 +41,19 @@
             $name = isset($_POST['name']) ? $_POST['name'] : '';
 
             if (!empty($name)) {
-                $sql = "UPDATE categories SET CategoryName = '$name' WHERE CategoryID = $id";
-
-                if (Database::NonQuery($sql)) {
+                if (Database::IsDuplicateNameCategories($name, $id)) {
                     $message = [
-                        'type' => 'success',
-                        'text' => 'Cập nhật thành công',
+                        'type' => 'warning',
+                        'text' => 'Tên thể loại đã tồn tại',
                     ];
+                } else {
+                    $sql = "UPDATE categories SET CategoryName = '$name' WHERE CategoryID = $id";
+                    if (Database::NonQuery($sql)) {
+                        $message = [
+                            'type' => 'success',
+                            'text' => 'Cập nhật thành công',
+                        ];
+                    }
                 }
             } else {
                 $message = [
@@ -42,6 +61,7 @@
                     'text' => 'Tên thể loại không được trống',
                 ];
             }
+
         }
     }
 

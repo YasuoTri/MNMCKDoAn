@@ -85,4 +85,15 @@ class Database
             return false;
         }
     }
+     public static function IsDuplicateNameCategories($name, $id = null)
+    {
+        // Nếu có ID (khi cập nhật), loại trừ ID đó ra khỏi kiểm tra
+        $sql = "SELECT COUNT(*) as count FROM categories WHERE CategoryName = '$name'";
+        if ($id) {
+            $sql .= " AND CategoryID != $id";
+        }
+
+        $result = Database::GetData($sql, ['row' => 0]);
+        return $result['count'] > 0;
+    }
 }
